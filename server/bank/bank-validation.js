@@ -5,7 +5,9 @@ module.exports = {
   createBank: {
     body: {
       bankname: Joi.string().required(),
-      location: Joi.string().required()
+      location: Joi.string().required(),
+      longitude: Joi.number().required(),
+      latitude: Joi.number().required()
     }
   },
 
@@ -13,7 +15,9 @@ module.exports = {
   updateBank: {
     body: {
       bankname: Joi.string().required(),
-      location: Joi.string().required()
+      location: Joi.string().required(),
+      longitude: Joi.number().required(),
+      latitude: Joi.number().required()
     },
     params: {
       bankId: Joi.string().hex().required()

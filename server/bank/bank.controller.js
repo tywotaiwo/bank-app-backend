@@ -29,7 +29,9 @@ function get(req, res) {
 function create(req, res, next) {
   const bank = new Bank({
     bankname: req.body.bankname,
-    location: req.body.location
+    location: req.body.location,
+    latitude: req.body.latitude,
+    longitude: req.body.longitude
   });
 
   bank.save()
@@ -47,6 +49,8 @@ function update(req, res, next) {
   const bank = req.bank;
   bank.bankname = req.body.bankname;
   bank.location = req.body.location;
+  bank.latitude = req.body.latitude;
+  bank.longitude = req.body.longitude;
 
   bank.save()
     .then(savedBank => res.json(savedBank))

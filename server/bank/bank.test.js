@@ -21,7 +21,9 @@
   describe('## Bank APIs', () => {
     let bank = {
       bankname: 'KK123',
-      location: 'ankara'
+      location: 'ankara',
+      latitude: 38.32,
+      longitude: 65.12
     };
 
     describe('# POST /api/banks', () => {

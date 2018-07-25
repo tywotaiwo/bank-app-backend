@@ -19,6 +19,14 @@ const BankSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account'
   }],
+  longitude: {
+    type: Number,
+    required: true
+  },
+  latitude: {
+    type: Number,
+    required: true
+  },
   createdAt: {
     type: Date,
     default: Date.now
