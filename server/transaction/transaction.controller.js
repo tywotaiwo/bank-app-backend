@@ -45,45 +45,40 @@ function findReceiver(receiverId) {
       .catch(() => reject(-1));
   });
 }
-function createTransaction(s, r,a) {
-  const transaction = new Transaction({
-    to: r._id,
-    from: s._id,
-    amount: a
-  });
-  transaction.save((err) => {
-    if (err) res.send(err);
-  });
-}
-function updateBalance(s, r, a) {
-  s.balance = s.balance - a;
-  r.balance = r.balance + a;
-  s.save()
-    .then(savedTransaction => console.log(savedTransaction))
-    .catch(e => next(e));
-  r.save()
-    .then(savedTransaction => console.log(savedTransaction))
-    .catch(e => next(e));
-}
+
 
 function create(req, res, next) {
-    let amount = req.body.amount;
-    let sender;
-    let receiver;
-  findSender(req.body.senderid)
-      .then((senderF) => {
-        sender = senderF;
-        findReceiver(req.body.receiverid)
-          .then((receiverF) => {
-            receiver = receiverF;
-            if (sender.balance >= req.body.amount) {
-              createTransaction(sender, receiver, amount);
-              updateBalance(sender, receiver, amount);
-            }
-            else res.send("insufficient balance in sender's account");
-          });
-      });
-
+  let sender;
+  let receiver;
+  return Promise.all([findSender(req.body.senderid), findReceiver(req.body.receiverid)])
+    .then((clients) => {
+      sender = clients[0];
+      receiver = clients[1];
+      if (sender.balance >= req.body.amount) {
+        createTransaction();
+        updateBalance();
+      } else res.send("insufficient balance in sender's account");
+    });
+  function createTransaction() {
+    const transaction = new Transaction({
+      to: sender._id,
+      from: receiver._id,
+      amount: req.body.amount
+    });
+    transaction.save((err) => {
+      if (err) res.send(err);
+    });
+  }
+  function updateBalance() {
+    sender.balance -= req.body.amount;
+    receiver.balance += req.body.amount;
+    sender.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+    receiver.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+  }
 }
 
 /**
@@ -92,7 +87,6 @@ function create(req, res, next) {
  * @property {Number} req.body.balance - The balance of transaction.
  * @returns {Transaction}
  */
-
 
 
 /**
@@ -119,4 +113,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove };
+module.exports = { load, get, create, list, remove };
