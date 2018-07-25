@@ -17,7 +17,7 @@ router.route('/:transactionId')
   .get(transactionCtrl.get)
 
   /** PUT /api/transactions/:transactionId - Update transaction */
-  .put(validate(paramValidation.updateTransaction), transactionCtrl.update)
+  .put(validate(paramValidation.updateTransaction), transactionCtrl.list)
 
   /** DELETE /api/transactions/:transactionId - Delete transaction */
   .delete(transactionCtrl.remove);

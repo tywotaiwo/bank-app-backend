@@ -18,13 +18,5 @@ module.exports = {
     params: {
       customerId: Joi.string().hex().required()
     }
-  },
-
-  // POST /api/auth/login
-  login: {
-    body: {
-      customername: Joi.string().required(),
-      password: Joi.string().required()
-    }
   }
 };
