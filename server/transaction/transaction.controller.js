@@ -20,12 +20,7 @@ function get(req, res) {
   return res.json(req.transaction);
 }
 
-/**
- * Create new transaction
- * @property {string} req.body.owner - The owner of transaction.
- * @property {Number} req.body.balance - The balance of transaction.
- * @returns {Transaction}
- */
+
 function findSender(senderId) {
   return new Promise((resolve, reject) => {
     Account.findOne({ _id: senderId })
@@ -34,13 +29,18 @@ function findSender(senderId) {
   });
 }
 
-/**
- * @param {string} customerId - The ID of the bank that is going to be validated from the database
- * @returns {Promise<any>}
- */
+
 function findReceiver(receiverId) {
   return new Promise((resolve, reject) => {
     Account.findOne({ _id: receiverId })
+      .then(result => resolve(result))
+      .catch(() => reject(-1));
+  });
+}
+
+function findTransaction(transactionId) {
+  return new Promise((resolve, reject) => {
+    Transaction.findOne({ _id: transactionId })
       .then(result => resolve(result))
       .catch(() => reject(-1));
   });
@@ -88,6 +88,37 @@ function create(req, res, next) {
  * @returns {Transaction}
  */
 
+function update(req, res, next) {
+  let sender;
+  let receiver;
+  const transactionUpdate = req.body;
+  let transaction;
+
+
+  return Promise.all([findSender(transactionUpdate.from), findReceiver(transactionUpdate.to),
+    findTransaction(transactionUpdate._id)])
+    .then((resolve) => {
+      sender = resolve[0];
+      receiver = resolve[1];
+      transaction = resolve[2];
+      // update account balances in database
+      sender.balance += transaction.amount;
+      sender.balance -= req.body.amount;
+      receiver.balance -= transaction.amount;
+      receiver.balance += req.body.amount;
+      transaction.amount = req.body.amount;
+      sender.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+      receiver.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+      transaction.save()
+        .then(savedTransaction => console.log(savedTransaction))
+        .catch(e => next(e));
+    });
+}
+
 
 /**
  * Get transaction list.
@@ -113,4 +144,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, list, remove };
+module.exports = { load, get, update, create, list, remove };

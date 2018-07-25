@@ -18,9 +18,6 @@ module.exports = {
       to: Joi.string().required(),
       */
       amount: Joi.number().required()
-    },
-    params: {
-      transactionId: Joi.string().hex().required()
     }
   }
 

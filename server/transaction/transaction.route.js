@@ -10,14 +10,15 @@ router.route('/')
   .get(transactionCtrl.list)
 
   /** POST /api/transactions - Create new transaction */
-  .post(validate(paramValidation.createTransaction), transactionCtrl.create);
+  .post(validate(paramValidation.createTransaction), transactionCtrl.create)
+
+  /** PUT /api/transactions/ - Update transaction */
+  .put(validate(paramValidation.updateTransaction), transactionCtrl.update);
 
 router.route('/:transactionId')
 /** GET /api/transactions/:transactionId - Get transaction */
   .get(transactionCtrl.get)
 
-  /** PUT /api/transactions/:transactionId - Update transaction */
-  .put(validate(paramValidation.updateTransaction), transactionCtrl.list)
 
   /** DELETE /api/transactions/:transactionId - Delete transaction */
   .delete(transactionCtrl.remove);
