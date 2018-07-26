@@ -5,6 +5,8 @@ const bankRoutes = require('./server/bank/bank.route');
 const authRoutes = require('./server/auth/auth.route');
 const accountRoutes = require('./server/account/account.route');
 
+const transactionRoutes = require('./server/transaction/transaction.route');
+
 const router = express.Router(); // eslint-disable-line new-cap
 
 // TODO: use glob to match *.route files
@@ -13,6 +15,8 @@ const router = express.Router(); // eslint-disable-line new-cap
 router.get('/health-check', (req, res) =>
   res.send('OK')
 );
+// mount user routes at /users
+router.use('/transaction', transactionRoutes);
 
 
 // mount user routes at /users

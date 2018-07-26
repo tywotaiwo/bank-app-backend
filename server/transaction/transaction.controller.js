@@ -20,35 +20,67 @@ function get(req, res) {
   return res.json(req.transaction);
 }
 
-/**
- * Create new transaction
- * @property {string} req.body.owner - The owner of transaction.
- * @property {Number} req.body.balance - The balance of transaction.
- * @returns {Transaction}
- */
-function create(req, res, next) {
-  let toId;
-  Account.findOne({ _id: req.body.to })
-    .then((to) => {
-      toId = to._id;
-    });
-  Account.findOne({ _id: req.body.from })
-    .then((from) => {
-      if (from.balance < req.body.amount) res.send("Sender's account balance is too low for this transaction");
-      else {
-        const transaction = new Transaction({
-          to: toId,
-          from: from._id,
-          amount: req.body.amount
-        });
 
-        transaction.save((err) => {
-          if (err) res.send(err);
-        });
-      }
-    });
-  next();
+function findSender(senderId) {
+  return new Promise((resolve, reject) => {
+    Account.findOne({ _id: senderId })
+      .then(result => resolve(result))
+      .catch(() => reject(new Error('Bank not found!')));
+  });
 }
+
+
+function findReceiver(receiverId) {
+  return new Promise((resolve, reject) => {
+    Account.findOne({ _id: receiverId })
+      .then(result => resolve(result))
+      .catch(() => reject(-1));
+  });
+}
+
+function findTransaction(transactionId) {
+  return new Promise((resolve, reject) => {
+    Transaction.findOne({ _id: transactionId })
+      .then(result => resolve(result))
+      .catch(() => reject(-1));
+  });
+}
+
+
+function create(req, res, next) {
+  let sender;
+  let receiver;
+  return Promise.all([findSender(req.body.senderid), findReceiver(req.body.receiverid)])
+    .then((clients) => {
+      sender = clients[0];
+      receiver = clients[1];
+      if (sender.balance >= req.body.amount) {
+        createTransaction();
+        updateBalance();
+      } else res.send("insufficient balance in sender's account");
+    });
+  function createTransaction() {
+    const transaction = new Transaction({
+      to: sender._id,
+      from: receiver._id,
+      amount: req.body.amount
+    });
+    transaction.save((err) => {
+      if (err) res.send(err);
+    });
+  }
+  function updateBalance() {
+    sender.balance -= req.body.amount;
+    receiver.balance += req.body.amount;
+    sender.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+    receiver.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+  }
+}
+
 /**
  * Update existing transaction
  * @property {string} req.body.owner - The owner of transaction.
@@ -56,15 +88,37 @@ function create(req, res, next) {
  * @returns {Transaction}
  */
 
-// you can update transaction balance
 function update(req, res, next) {
-  const transaction = req.transaction;
-  transaction.amount = req.body.amount;
+  let sender;
+  let receiver;
+  const transactionUpdate = req.body;
+  let transaction;
 
-  transaction.save()
-    .then(savedTransaction => res.json(savedTransaction))
-    .catch(e => next(e));
+
+  return Promise.all([findSender(transactionUpdate.from), findReceiver(transactionUpdate.to),
+    findTransaction(transactionUpdate._id)])
+    .then((resolve) => {
+      sender = resolve[0];
+      receiver = resolve[1];
+      transaction = resolve[2];
+      // update account balances in database
+      sender.balance += transaction.amount;
+      sender.balance -= req.body.amount;
+      receiver.balance -= transaction.amount;
+      receiver.balance += req.body.amount;
+      transaction.amount = req.body.amount;
+      sender.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+      receiver.save()
+      .then(savedTransaction => console.log(savedTransaction))
+      .catch(e => next(e));
+      transaction.save()
+        .then(savedTransaction => console.log(savedTransaction))
+        .catch(e => next(e));
+    });
 }
+
 
 /**
  * Get transaction list.
@@ -90,4 +144,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove };
+module.exports = { load, get, update, create, list, remove };

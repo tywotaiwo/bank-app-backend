@@ -11,12 +11,12 @@ const TransactionSchema = new mongoose.Schema({
   from: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account',
-    required: true
+   // required: true
   },
   to: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account',
-    required: true
+  //  required: true
   },
   amount: {
     type: Number,
@@ -46,27 +46,27 @@ TransactionSchema.method({
  */
 TransactionSchema.statics = {
   /**
-   * Get bank
-   * @param {ObjectId} id - The objectId of bank.
+   * Get transaction
+   * @param {ObjectId} id - The objectId of transaction.
    * @returns {Promise<Transaction, APIError>}
    */
   get(id) {
     return this.findById(id)
       .exec()
-      .then((bank) => {
-        if (bank) {
-          return bank;
+      .then((transaction) => {
+        if (transaction) {
+          return transaction;
         }
-        const err = new APIError('No such bank exists!', httpStatus.NOT_FOUND);
+        const err = new APIError('No such transaction exists!', httpStatus.NOT_FOUND);
         return Promise.reject(err);
       });
   },
 
 
   /**
-   * List banks in descending order of 'createdAt' timestamp.
-   * @param {number} skip - Number of banks to be skipped.
-   * @param {number} limit - Limit number of banks to be returned.
+   * List transactions in descending order of 'createdAt' timestamp.
+   * @param {number} skip - Number of transactions to be skipped.
+   * @param {number} limit - Limit number of transactions to be returned.
    * @returns {Promise<Transaction[]>}
    */
   list({ skip = 0, limit = 50 } = {}) {
