@@ -15,8 +15,8 @@ const router = express.Router(); // eslint-disable-line new-cap
 router.get('/health-check', (req, res) =>
   res.send('OK')
 );
-// mount user routes at /users
-router.use('/transaction', transactionRoutes);
+// mount transaction routes at /transactions
+router.use('/transactions', transactionRoutes);
 
 
 // mount user routes at /users

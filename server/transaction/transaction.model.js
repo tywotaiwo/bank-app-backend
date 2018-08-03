@@ -1,5 +1,4 @@
 const Promise = require('bluebird');
-
 const mongoose = require('mongoose');
 const httpStatus = require('http-status');
 const APIError = require('../helpers/APIError');
@@ -11,12 +10,12 @@ const TransactionSchema = new mongoose.Schema({
   from: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account',
-   // required: true
+    required: true
   },
   to: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Account',
-  //  required: true
+    required: true
   },
   amount: {
     type: Number,

@@ -1,5 +1,4 @@
-const Transaction = require('./transaction.model');
-
+/*const Transaction = require('./transaction.model');
 /**
  * Load transaction and append to req.
  */
@@ -22,34 +21,30 @@ function get(req, res) {
 
 /**
  * Create new transaction
- * @property {string} req.body.from - The sender of transaction.
- * @property {string} req.body.to - The receiver of transaction.
- * @property {string} req.body.amount - The amount of transaction.
+ * @property {string} req.body.from - ID of the sender
+ * @property {string} req.body.to - ID of the receiver
+ * @property {Number} req.body.amount - The balance of the created transaction will have
  * @returns {Transaction}
  */
 function create(req, res, next) {
   const transaction = new Transaction({
-    from: req.body.from,
-    to: req.body.to,
-    amount: req.body.amount
+    owner: req.body.owner,
+    bank: req.body.from,
+    balance: req.body.amount
   });
-
   transaction.save()
     .then(savedTransaction => res.json(savedTransaction))
     .catch(e => next(e));
 }
-
 /**
  * Update existing transaction
- * @property {string} req.body.from - The sender of transaction.
- * @property {string} req.body.to - The receiver of transaction.
- * @property {string} req.body.amount - The amount of transaction.
+ * @property {Number} req.body.amount - The balance of transaction.
  * @returns {Transaction}
  */
+
+// you can update transaction balance
 function update(req, res, next) {
   const transaction = req.transaction;
-  transaction.from = req.body.from;
-  transaction.to = req.body.to;
   transaction.amount = req.body.amount;
 
   transaction.save()
@@ -59,8 +54,8 @@ function update(req, res, next) {
 
 /**
  * Get transaction list.
- * @property {number} req.query.skip - Number of transactions to be skipped.
- * @property {number} req.query.limit - Limit number of transactions to be returned.
+ * @property {Number} req.query.skip - Number of transactions to be skipped.
+ * @property {Number} req.query.limit - Limit number of transactions to be returned.
  * @returns {Transaction[]}
  */
 function list(req, res, next) {
@@ -72,7 +67,8 @@ function list(req, res, next) {
 
 /**
  * Delete transaction.
- * @returns {transaction}
+ * @property {Transaction} req.transaction - The transaction that is going to be deleted
+ * @returns {Transaction}
  */
 function remove(req, res, next) {
   const transaction = req.transaction;
@@ -81,4 +77,4 @@ function remove(req, res, next) {
     .catch(e => next(e));
 }
 
-module.exports = { load, get, create, update, list, remove };
+// module.exports = { load, get, create, update, list, remove };
